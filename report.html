@@ -139,11 +139,6 @@
 
       const color = rating >= 85 ? "text-green-700" : "text-red-700";
       trustResult.innerHTML = `<span class="${color}">AI Trustworthiness: ${rating}/100 – ${explanation}</span>`;
-
-      // Redirect to home after 1.5 seconds
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 1500);
     }
   </script>
 
