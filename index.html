@@ -1,260 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siyakhathala - Report Civic Issues</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&callback=initMap&libraries=places&v=weekly" defer></script>
-    <script type="module">
-        // Firebase and Firestore imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Firebase and App-specific global variables
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const __initial_auth_token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        let db;
-        let auth;
-        let userId;
-
-        // Initialize Firebase and set up authentication listener
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (Object.keys(firebaseConfig).length > 0) {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                firebase.auth().setLogLevel('debug'); // for debugging
-                console.log("Firebase initialized.");
-
-                // Sign in with custom token if available, otherwise anonymously
-                try {
-                    if (__initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                    console.log("Authentication successful.");
-                } catch (error) {
-                    console.error("Authentication failed:", error);
-                    // Handle authentication errors gracefully
-                    const messageBox = document.getElementById('messageBox');
-                    const messageText = document.getElementById('messageText');
-                    messageText.textContent = 'Authentication failed. Please try again later.';
-                    messageBox.classList.remove('hidden');
-                }
-
-                // Listen for auth state changes to get the user ID
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        document.getElementById('userIdDisplay').textContent = `User ID: ${userId}`;
-                        console.log("User authenticated with ID:", userId);
-                        // Once authenticated, start fetching reports
-                        fetchReports();
-                    } else {
-                        console.log("User is signed out.");
-                        // Handle signed out state if necessary
-                    }
-                });
-            } else {
-                const messageBox = document.getElementById('messageBox');
-                const messageText = document.getElementById('messageText');
-                messageText.textContent = 'Firebase configuration is missing.';
-                messageBox.classList.remove('hidden');
-                console.error("Firebase config is missing.");
-            }
-        });
-
-        // Function to fetch and display reports
-        const fetchReports = () => {
-            const reportsRef = collection(db, 'artifacts', appId, 'public', 'data', 'civicReports');
-            const q = query(reportsRef, orderBy('timestamp', 'desc'), limit(100)); // Sort by timestamp and limit to 100
-
-            onSnapshot(q, (snapshot) => {
-                const reportsContainer = document.getElementById('reportsContainer');
-                reportsContainer.innerHTML = ''; // Clear previous reports
-                let firstReport = true;
-                snapshot.forEach((doc) => {
-                    const report = doc.data();
-                    const reportDiv = document.createElement('div');
-                    reportDiv.classList.add('bg-gray-100', 'p-4', 'rounded-xl', 'shadow', 'mb-4', 'transition', 'duration-300', 'ease-in-out', 'hover:shadow-lg', 'transform', 'hover:scale-105');
-                    reportDiv.innerHTML = `
-                        <h3 class="text-lg font-semibold text-gray-800">${report.title}</h3>
-                        <p class="text-sm text-gray-600 mb-2">Location: ${report.location}</p>
-                        <p class="text-sm text-gray-700">${report.description}</p>
-                        <p class="text-xs text-gray-400 mt-2">Reported by: ${report.userId || 'Anonymous'}</p>
-                    `;
-                    reportsContainer.appendChild(reportDiv);
-                });
-            });
-        };
-
-        // Function to handle form submission
-        window.submitReport = async (event) => {
-            event.preventDefault();
-            
-            const title = document.getElementById('issueTitle').value;
-            const description = document.getElementById('issueDescription').value;
-            const location = document.getElementById('issueLocation').value;
-
-            if (!title || !description || !location) {
-                const messageBox = document.getElementById('messageBox');
-                const messageText = document.getElementById('messageText');
-                messageText.textContent = 'Please fill out all fields.';
-                messageBox.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                const reportsCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'civicReports');
-                await addDoc(reportsCollectionRef, {
-                    title: title,
-                    description: description,
-                    location: location,
-                    userId: auth.currentUser?.uid || 'anonymous',
-                    timestamp: serverTimestamp()
-                });
-                
-                const messageBox = document.getElementById('messageBox');
-                const messageText = document.getElementById('messageText');
-                messageText.textContent = 'Report submitted successfully! Thank you for your contribution.';
-                messageBox.classList.remove('hidden');
-
-                // Clear the form after successful submission
-                document.getElementById('reportForm').reset();
-            } catch (e) {
-                const messageBox = document.getElementById('messageBox');
-                const messageText = document.getElementById('messageText');
-                messageText.textContent = 'Error submitting report. Please try again.';
-                messageBox.classList.remove('hidden');
-                console.error("Error adding document: ", e);
-            }
-        };
-
-        // Initialize Google Maps functionality
-        window.initMap = () => {
-            const mapOptions = {
-                center: { lat: -33.9249, lng: 18.4241 }, // Default to Cape Town, South Africa
-                zoom: 12
-            };
-            const map = new google.maps.Map(document.getElementById("map"), mapOptions);
-
-            const input = document.getElementById("issueLocation");
-            const autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo("bounds", map);
-
-            const infoWindow = new google.maps.InfoWindow();
-            const marker = new google.maps.Marker({
-                map,
-                anchorPoint: new google.maps.Point(0, -29)
-            });
-
-            autocomplete.addListener("place_changed", () => {
-                infoWindow.close();
-                marker.setVisible(false);
-                const place = autocomplete.getPlace();
-
-                if (!place.geometry || !place.geometry.location) {
-                    window.alert("No details available for input: '" + place.name + "'");
-                    return;
-                }
-
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(17);
-                }
-
-                marker.setPosition(place.geometry.location);
-                marker.setVisible(true);
-            });
-        };
-
-    </script>
-    <style>
-        .gradient-bg {
-            background-image: linear-gradient(to right bottom, #4f46e5, #4338ca, #3730a3, #2e288e, #24225b);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siyakhathala – We Care</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 font-sans">
-
-    <!-- Main Container -->
-    <div class="container mx-auto p-4 md:p-8">
-
-        <!-- Header Section -->
-        <header class="text-center py-8">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight">
-                Siyakhathala
-            </h1>
-            <p class="mt-2 text-xl text-gray-600">
-                (We Care) - Report Civic Issues
-            </p>
-            <p class="text-sm mt-4 text-gray-500" id="userIdDisplay">User ID: Loading...</p>
-        </header>
-
-        <!-- Message Box (Alert/Modal) -->
-        <div id="messageBox" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-6 rounded-xl shadow-lg bg-white border border-gray-200 hidden transition-all duration-300">
-            <div class="flex flex-col items-center">
-                <p id="messageText" class="text-lg text-gray-800 font-semibold text-center mb-4"></p>
-                <button onclick="document.getElementById('messageBox').classList.add('hidden')" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300">
-                    Dismiss
-                </button>
-            </div>
-        </div>
-
-        <!-- Main Content Grid -->
-        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mt-8">
-
-            <!-- Report Form Section -->
-            <section class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Report a New Issue</h2>
-                <form id="reportForm" onsubmit="submitReport(event)" class="space-y-6">
-                    <div>
-                        <label for="issueTitle" class="block text-sm font-medium text-gray-700">Issue Title</label>
-                        <input type="text" id="issueTitle" name="issueTitle" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
-                    </div>
-                    <div>
-                        <label for="issueDescription" class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea id="issueDescription" name="issueDescription" rows="4" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3"></textarea>
-                    </div>
-                    <div>
-                        <label for="issueLocation" class="block text-sm font-medium text-gray-700">Location (start typing an address)</label>
-                        <input type="text" id="issueLocation" name="issueLocation" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3">
-                    </div>
-                    
-                    <div id="map" class="h-64 md:h-80 w-full rounded-xl shadow-md border border-gray-200"></div>
-
-                    <div class="flex justify-end">
-                        <button type="submit" class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-300">
-                            Submit Report
-                        </button>
-                    </div>
-                </form>
-            </section>
-
-            <!-- Latest Reports Section -->
-            <section class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Latest Reports</h2>
-                <div id="reportsContainer" class="space-y-4">
-                    <!-- Reports will be dynamically added here by JavaScript -->
-                    <div class="flex justify-center items-center py-12">
-                        <p class="text-gray-500">Loading latest reports...</p>
-                    </div>
-                </div>
-            </section>
-
-        </main>
+<body class="bg-gray-50 text-gray-900 font-sans">
+  <!-- Header -->
+  <header class="bg-green-700 text-white shadow-md">
+    <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+      <div>
+        <h1 class="text-2xl font-extrabold">Siyakhathala</h1>
+        <p class="text-sm italic text-gray-200">We Care</p>
+      </div>
+      <nav>
+        <ul class="flex space-x-6">
+          <li><a href="#" class="hover:underline">Home</a></li>
+          <li><a href="#how-it-works" class="hover:underline">How it Works</a></li>
+          <li><a href="#report" class="hover:underline">Report Issue</a></li>
+        </ul>
+      </nav>
     </div>
+  </header>
 
-    <!-- Footer -->
-    <footer class="text-center py-8 text-gray-500 text-sm mt-12">
-        <p>&copy; 2025 Siyakhathala. All rights reserved.</p>
-    </footer>
+  <!-- Hero Section -->
+  <section class="bg-white py-20">
+    <div class="max-w-6xl mx-auto text-center px-6">
+      <h2 class="text-4xl font-extrabold text-gray-800 mb-4">
+        Siyakhathala – <span class="text-green-700">We Care</span>
+      </h2>
+      <p class="text-lg text-gray-600 mb-8">
+        Help us build safer and better communities across South Africa.  
+        Report potholes, broken streetlights, water leaks, and more – quickly and easily.
+      </p>
+      <a href="#report" class="bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition">
+        Report an Issue
+      </a>
+    </div>
+  </section>
 
+  <!-- How it Works -->
+  <section id="how-it-works" class="py-16 bg-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <h3 class="text-2xl font-bold text-center mb-10">How it Works</h3>
+      <div class="grid md:grid-cols-3 gap-8 text-center">
+        <div class="p-6 bg-white rounded-xl shadow">
+          <span class="text-green-700 text-4xl">📍</span>
+          <h4 class="mt-4 font-semibold text-lg">1. Pin the Location</h4>
+          <p class="text-gray-600">Select the exact location of the issue on the map.</p>
+        </div>
+        <div class="p-6 bg-white rounded-xl shadow">
+          <span class="text-green-700 text-4xl">📷</span>
+          <h4 class="mt-4 font-semibold text-lg">2. Upload Photos</h4>
+          <p class="text-gray-600">Take a picture of the problem for faster response.</p>
+        </div>
+        <div class="p-6 bg-white rounded-xl shadow">
+          <span class="text-green-700 text-4xl">✅</span>
+          <h4 class="mt-4 font-semibold text-lg">3. Submit Report</h4>
+          <p class="text-gray-600">Send your report directly to the right department.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section id="report" class="py-20 bg-green-700 text-white text-center">
+    <h3 class="text-3xl font-bold mb-6">Together, We Care</h3>
+    <p class="mb-8 text-lg">Your reports help us fix problems and improve lives in your community.</p>
+    <a href="/report" class="bg-white text-green-800 font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-100 transition">
+      Start Reporting
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-400 py-8">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
+      <div>
+        <h4 class="text-white font-bold">Siyakhathala</h4>
+        <p class="text-sm italic">We Care</p>
+      </div>
+      <ul class="flex space-x-6 mt-4 md:mt-0">
+        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+        <li><a href="#" class="hover:text-white">Terms</a></li>
+        <li><a href="#" class="hover:text-white">Contact</a></li>
+      </ul>
+    </div>
+  </footer>
 </body>
 </html>
