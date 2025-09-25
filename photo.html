@@ -33,20 +33,24 @@
         return;
       }
 
-      const issueData = JSON.parse(localStorage.getItem("issueData"));
+      const issueData = JSON.parse(localStorage.getItem("issueData")) || {};
       const photoFile = photoInput.files[0];
 
+      // Convert the photo to Data URL
       const reader = new FileReader();
-      reader.onload = function(event) {
-        // Save photo as Data URL and submission timestamp
-        issueData.photoDataUrl = event.target.result;
-        issueData.submittedAt = new Date();
+      reader.onload = function(e) {
+        issueData.photoDataUrl = e.target.result;
+        issueData.submittedAt = new Date().toISOString(); // Record submission date
         localStorage.setItem("issueData", JSON.stringify(issueData));
 
         alert("Thank you! Your issue and photo have been submitted.");
 
-        // Redirect to dashboard
-        window.location.href = "dashboard.html";
+        // Clear coordinates (optional)
+        localStorage.removeItem("issueLat");
+        localStorage.removeItem("issueLng");
+
+        // Redirect to homepage
+        window.location.href = "index.html";
       };
       reader.readAsDataURL(photoFile);
     });

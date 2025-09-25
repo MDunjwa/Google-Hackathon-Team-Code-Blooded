@@ -53,9 +53,11 @@
 
   <!-- Latest Issue Modal -->
   <div id="latestModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
-    <div class="bg-white p-8 rounded-lg shadow-lg max-w-xl w-full relative">
-      <button id="closeModal" class="absolute top-2 right-2 text-red-500 font-bold text-xl">✖</button>
-      <div id="dashboardContent" class="space-y-4 text-center">Loading...</div>
+    <div class="bg-white p-6 rounded-xl shadow-2xl max-w-xl w-full relative border-l-8 border-green-700">
+      <button id="closeModal" class="absolute top-3 right-3 text-red-500 font-bold text-xl hover:text-red-700">✖</button>
+      <div id="dashboardContent" class="space-y-4 text-center text-gray-700">
+        Loading latest issue...
+      </div>
     </div>
   </div>
 
@@ -153,7 +155,7 @@
 
       const issueDataJSON = localStorage.getItem('issueData');
       if (!issueDataJSON) {
-        dashboard.innerHTML = "<p class='text-red-500'>No issue data found. Please submit an issue first.</p>";
+        dashboard.innerHTML = "<p class='text-red-500 text-center'>No issue data found. Please submit an issue first.</p>";
         return;
       }
 
@@ -162,14 +164,17 @@
       const photoURL = issueData.photoDataUrl || "";
       const submittedDate = issueData.submittedAt ? new Date(issueData.submittedAt) : new Date();
       const diffDays = Math.floor((new Date() - submittedDate)/(1000*60*60*24));
-      const reportedText = diffDays === 0 ? "Reported today" : `Reported ${diffDays} day(s) ago`;
+      const firstName = issueData.name ? issueData.name.split(' ')[0] : "Anonymous";
+      const address = issueData.address || "Address not specified";
 
       dashboard.innerHTML = `
-        ${photoURL ? `<img src="${photoURL}" alt="Issue Photo" class="mx-auto mb-4 rounded-lg shadow-md max-h-96" />` : ""}
-        <h3 class="text-xl font-semibold">${issueData.category || "No Category"}</h3>
+        ${photoURL ? `<img src="${photoURL}" alt="Issue Photo" class="mx-auto mb-4 rounded-lg shadow-md max-h-64 border-2 border-green-700" />` : ""}
+        <h3 class="text-2xl font-bold text-green-700">${issueData.category || "Untitled Issue"}</h3>
         <p class="text-gray-700">${issueData.description || "No description provided."}</p>
-        <p class="text-gray-600 mt-2">Coordinates: ${coords}</p>
-        <p class="text-gray-600">${reportedText}</p>
+        <p class="text-gray-600"><span class="font-semibold">Address:</span> ${address}</p>
+        <p class="text-gray-600"><span class="font-semibold">Coordinates:</span> ${coords}</p>
+        <p class="text-gray-600"><span class="font-semibold">Reported by:</span> ${firstName}</p>
+        <p class="text-gray-600"><span class="font-semibold">Days since reported:</span> ${diffDays}</p>
       `;
     });
 
