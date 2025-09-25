@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siyakhathala – Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+  <header class="bg-green-700 text-white shadow-md relative">
+    <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+      <h1 class="text-2xl font-extrabold">Siyakhathala Dashboard</h1>
+      <p class="text-xs italic text-gray-200 -mt-1">Latest Issue</p>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-bold mb-6 text-center">Latest Reported Issue</h2>
+    <div id="dashboardContent" class="bg-white p-8 rounded-lg shadow-md space-y-6 text-center">
+      <p>Loading...</p>
+    </div>
+  </main>
+
+  <script>
+    const dashboard = document.getElementById("dashboardContent");
+    const issueDataJSON = localStorage.getItem("issueData");
+
+    if (!issueDataJSON) {
+      dashboard.innerHTML = "<p class='text-red-500'>No issue data found. Please submit an issue first.</p>";
+    } else {
+      const issueData = JSON.parse(issueDataJSON);
+      
+      // Convert photo file to URL for display
+      const photoFile = issueData.photoFile;
+      let photoURL = issueData.photoDataUrl || "";
+
+      // Compute days since submission
+      const submittedDate = new Date(issueData.submittedAt);
+      const today = new Date();
+      const diffTime = Math.abs(today - submittedDate);
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      dashboard.innerHTML = `
+        ${photoURL ? `<img src="${photoURL}" alt="Issue Photo" class="mx-auto mb-4 rounded-lg shadow-md max-h-96" />` : ""}
+        <h3 class="text-xl font-semibold">${issueData.category}</h3>
+        <p class="text-gray-700">${issueData.description}</p>
+        <p class="text-gray-600 mt-2">Coordinates: ${issueData.latitude}, ${issueData.longitude}</p>
+        <p class="text-gray-600">Reported ${diffDays} day(s) ago</p>
+      `;
+    }
+  </script>
+</body>
+</html>

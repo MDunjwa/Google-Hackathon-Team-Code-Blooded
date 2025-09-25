@@ -36,18 +36,19 @@
       const issueData = JSON.parse(localStorage.getItem("issueData"));
       const photoFile = photoInput.files[0];
 
-      console.log("Issue Data:", issueData);
-      console.log("Photo File:", photoFile);
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        // Save photo as Data URL and submission timestamp
+        issueData.photoDataUrl = event.target.result;
+        issueData.submittedAt = new Date();
+        localStorage.setItem("issueData", JSON.stringify(issueData));
 
-      alert("Thank you! Your issue and photo have been submitted.");
+        alert("Thank you! Your issue and photo have been submitted.");
 
-      // Clear localStorage
-      localStorage.removeItem("issueData");
-      localStorage.removeItem("issueLat");
-      localStorage.removeItem("issueLng");
-
-      // Optionally redirect to a confirmation page or home
-      window.location.href = "index.html";
+        // Redirect to dashboard
+        window.location.href = "dashboard.html";
+      };
+      reader.readAsDataURL(photoFile);
     });
   </script>
 </body>

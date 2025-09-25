@@ -40,11 +40,24 @@
         Help us build safer and better communities across South Africa.  
         Report potholes, broken streetlights, water leaks, and more – quickly and easily.
       </p>
-      <a href="report.html" class="bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition">
-        Report an Issue
-      </a>
+      <div class="mt-4 flex justify-center gap-4">
+        <a href="report.html" class="bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition">
+          Report an Issue
+        </a>
+        <button id="showLatest" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition">
+          Latest Reported Issue
+        </button>
+      </div>
     </div>
   </section>
+
+  <!-- Latest Issue Modal -->
+  <div id="latestModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-xl w-full relative">
+      <button id="closeModal" class="absolute top-2 right-2 text-red-500 font-bold text-xl">✖</button>
+      <div id="dashboardContent" class="space-y-4 text-center">Loading...</div>
+    </div>
+  </div>
 
   <!-- How it Works -->
   <section id="how-it-works" class="py-16 bg-gray-100">
@@ -128,5 +141,39 @@
       <div class="flex-1 bg-blue-600"></div>
     </div>
   </footer>
+
+  <script>
+    const showBtn = document.getElementById('showLatest');
+    const modal = document.getElementById('latestModal');
+    const closeModal = document.getElementById('closeModal');
+    const dashboard = document.getElementById('dashboardContent');
+
+    showBtn.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+
+      const issueDataJSON = localStorage.getItem('issueData');
+      if (!issueDataJSON) {
+        dashboard.innerHTML = "<p class='text-red-500'>No issue data found. Please submit an issue first.</p>";
+        return;
+      }
+
+      const issueData = JSON.parse(issueDataJSON);
+      const coords = issueData.latitude && issueData.longitude ? `${issueData.latitude}, ${issueData.longitude}` : "Not specified";
+      const photoURL = issueData.photoDataUrl || "";
+      const submittedDate = issueData.submittedAt ? new Date(issueData.submittedAt) : new Date();
+      const diffDays = Math.floor((new Date() - submittedDate)/(1000*60*60*24));
+      const reportedText = diffDays === 0 ? "Reported today" : `Reported ${diffDays} day(s) ago`;
+
+      dashboard.innerHTML = `
+        ${photoURL ? `<img src="${photoURL}" alt="Issue Photo" class="mx-auto mb-4 rounded-lg shadow-md max-h-96" />` : ""}
+        <h3 class="text-xl font-semibold">${issueData.category || "No Category"}</h3>
+        <p class="text-gray-700">${issueData.description || "No description provided."}</p>
+        <p class="text-gray-600 mt-2">Coordinates: ${coords}</p>
+        <p class="text-gray-600">${reportedText}</p>
+      `;
+    });
+
+    closeModal.addEventListener('click', () => modal.classList.add('hidden'));
+  </script>
 </body>
 </html>
