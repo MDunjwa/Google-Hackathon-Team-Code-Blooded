@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siyakhathala – Submit Issue</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+  <header class="bg-green-700 text-white shadow-md relative">
+    <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+      <h1 class="text-2xl font-extrabold">Siyakhathala</h1>
+      <p class="text-xs italic text-gray-200 -mt-1">We Care</p>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-bold mb-6 text-center">Submit Issue Details</h2>
+
+    <form id="issueForm" class="bg-white p-8 rounded-lg shadow-md space-y-6">
+      <!-- Category -->
+      <div>
+        <label for="category" class="block font-semibold mb-2">Category</label>
+        <select id="category" name="category" required class="w-full border border-gray-300 rounded-lg p-2">
+          <option value="">Select a category</option>
+          <option value="pothole">Potholes</option>
+          <option value="streetlight">Broken Streetlights</option>
+          <option value="water">Water Leaks</option>
+          <option value="garbage">Illegal Dumping/Garbage</option>
+          <option value="traffic">Traffic Issues</option>
+          <option value="other">Other Civic Issues</option>
+        </select>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label for="description" class="block font-semibold mb-2">Description</label>
+        <textarea id="description" name="description" rows="4" placeholder="Describe the issue in detail..." required class="w-full border border-gray-300 rounded-lg p-2"></textarea>
+      </div>
+
+      <!-- Contact Info -->
+      <div>
+        <label class="block font-semibold mb-2">Contact Information</label>
+        <input type="text" id="name" name="name" placeholder="Your Name" required class="w-full border border-gray-300 rounded-lg p-2 mb-2">
+        <input type="email" id="email" name="email" placeholder="Your Email" required class="w-full border border-gray-300 rounded-lg p-2 mb-2">
+        <input type="tel" id="phone" name="phone" placeholder="Phone Number (optional)" class="w-full border border-gray-300 rounded-lg p-2">
+      </div>
+
+      <button type="submit" class="bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition w-full">
+        Submit Issue
+      </button>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById("issueForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const issueData = {
+        category: document.getElementById("category").value,
+        description: document.getElementById("description").value,
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        latitude: localStorage.getItem("issueLat"),
+        longitude: localStorage.getItem("issueLng"),
+      };
+
+      console.log("Issue Submitted:", issueData);
+      alert("Thank you! Your issue has been submitted.");
+
+      // Clear storage and reset form
+      localStorage.removeItem("issueLat");
+      localStorage.removeItem("issueLng");
+      document.getElementById("issueForm").reset();
+    });
+  </script>
+</body>
+</html>

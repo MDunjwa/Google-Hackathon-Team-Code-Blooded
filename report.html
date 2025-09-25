@@ -78,8 +78,10 @@
       document.getElementById("submitBtn").addEventListener("click", () => {
         if (!marker) return;
         const pos = marker.getPosition();
-        alert("Location submitted: " + pos.lat().toFixed(5) + ", " + pos.lng().toFixed(5));
-        // TODO: send data to backend
+        // Save coordinates to localStorage to pass to issue.html
+        localStorage.setItem("issueLat", pos.lat());
+        localStorage.setItem("issueLng", pos.lng());
+        window.location.href = "issue.html";
       });
     }
 
