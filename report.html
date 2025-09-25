@@ -29,13 +29,26 @@
   <section class="py-20 text-center">
     <div class="max-w-4xl mx-auto px-6">
       <h2 class="text-3xl font-bold mb-6">Report an Issue</h2>
-      <p class="mb-8 text-lg">Select the location of the issue. You can use your current location or place a pin manually.</p>
+      <p class="mb-8 text-lg">Select the location, upload a photo, take a photo, and describe the issue.</p>
 
       <div id="map"></div>
       <p id="locationOutput" class="mt-4 text-green-700 font-semibold"></p>
 
-      <button id="submitBtn" disabled class="mt-6 bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-green-800 transition">
-        Submit Location
+      <!-- Description -->
+      <textarea id="issueDescription" placeholder="Describe the issue..." 
+        class="w-full mt-6 p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600"></textarea>
+
+      <!-- Image Upload / Capture -->
+      <input type="file" id="issueImage" accept="image/*" capture="environment"
+        class="w-full mt-4 p-2 border rounded-lg shadow-sm bg-white" />
+
+      <!-- Trustworthiness Result -->
+      <p id="trustResult" class="mt-4 font-semibold"></p>
+
+      <!-- Submit -->
+      <button id="submitBtn" disabled 
+        class="mt-6 bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-green-800 transition">
+        Submit Report
       </button>
     </div>
   </section>
@@ -51,7 +64,6 @@
         zoom: 6,
       });
 
-      // Try geolocation
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
@@ -69,19 +81,27 @@
         );
       }
 
-      // Click to place/move marker
       map.addListener("click", (e) => {
         placeMarker(e.latLng);
       });
 
-      // Submit button
-      document.getElementById("submitBtn").addEventListener("click", () => {
+      document.getElementById("submitBtn").addEventListener("click", async () => {
         if (!marker) return;
         const pos = marker.getPosition();
-        // Save coordinates to localStorage to pass to issue.html
+        const description = document.getElementById("issueDescription").value;
+        const imageFile = document.getElementById("issueImage").files[0];
+
+        if (!description || !imageFile) {
+          alert("Please provide both description and image.");
+          return;
+        }
+
+        // Save coordinates
         localStorage.setItem("issueLat", pos.lat());
         localStorage.setItem("issueLng", pos.lng());
-        window.location.href = "issue.html";
+
+        // Fake trustworthiness check
+        await checkTrustworthiness(description, imageFile);
       });
     }
 
@@ -96,11 +116,33 @@
         });
       }
       document.getElementById("locationOutput").innerText =
-        "Pinned Location: " + location.lat.toFixed(5) + ", " + location.lng.toFixed(5);
+        "Pinned Location: " + location.lat().toFixed(5) + ", " + location.lng().toFixed(5);
       document.getElementById("submitBtn").disabled = false;
+    }
+
+    async function checkTrustworthiness(description, imageFile) {
+      const trustResult = document.getElementById("trustResult");
+      trustResult.innerText = "Analyzing report with AI...";
+
+      // Fake delay
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
+      let rating, explanation;
+
+      if (imageFile.name.toLowerCase().includes("potstock")) {
+        rating = 15;
+        explanation = "The uploaded image looks suspicious and may not match the report.";
+      } else {
+        rating = Math.floor(Math.random() * 11) + 90; // 90–100
+        explanation = "The description and image appear to match very well.";
+      }
+
+      const color = rating >= 85 ? "text-green-700" : "text-red-700";
+      trustResult.innerHTML = `<span class="${color}">AI Trustworthiness: ${rating}/100 – ${explanation}</span>`;
     }
   </script>
 
+  <!-- Google Maps -->
   <script async
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9i1vMn1mYg40dtLHcBVt5730NpU747KY&callback=initMap">
   </script>
