@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siyakhathala – Upload Photo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+  <header class="bg-green-700 text-white shadow-md relative">
+    <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+      <h1 class="text-2xl font-extrabold">Siyakhathala</h1>
+      <p class="text-xs italic text-gray-200 -mt-1">We Care</p>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-bold mb-6">Upload a Photo of the Issue</h2>
+    <p class="mb-8 text-lg">Take a photo or select one from your gallery to complete your report.</p>
+
+    <input type="file" accept="image/*" capture="environment" id="issuePhoto" class="mb-6 w-full" />
+
+    <button id="submitPhoto" class="bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition w-full">
+      Submit Photo
+    </button>
+  </main>
+
+  <script>
+    document.getElementById("submitPhoto").addEventListener("click", () => {
+      const photoInput = document.getElementById("issuePhoto");
+      if (!photoInput.files.length) {
+        alert("Please select or take a photo.");
+        return;
+      }
+
+      const issueData = JSON.parse(localStorage.getItem("issueData"));
+      const photoFile = photoInput.files[0];
+
+      console.log("Issue Data:", issueData);
+      console.log("Photo File:", photoFile);
+
+      alert("Thank you! Your issue and photo have been submitted.");
+
+      // Clear localStorage
+      localStorage.removeItem("issueData");
+      localStorage.removeItem("issueLat");
+      localStorage.removeItem("issueLng");
+
+      // Optionally redirect to a confirmation page or home
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

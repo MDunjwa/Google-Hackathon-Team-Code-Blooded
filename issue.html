@@ -66,13 +66,11 @@
         longitude: localStorage.getItem("issueLng"),
       };
 
-      console.log("Issue Submitted:", issueData);
-      alert("Thank you! Your issue has been submitted.");
+      // Save issue data to localStorage
+      localStorage.setItem("issueData", JSON.stringify(issueData));
 
-      // Clear storage and reset form
-      localStorage.removeItem("issueLat");
-      localStorage.removeItem("issueLng");
-      document.getElementById("issueForm").reset();
+      // Redirect to photo page
+      window.location.href = "photo.html";
     });
   </script>
 </body>
