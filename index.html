@@ -5,37 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Siyakhathala – We Care</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    #map { height: 400px; border-radius: 12px; }
+  </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans">
   <!-- Header -->
-  <header class="bg-green-700 text-white shadow-md border-b-4 border-yellow-400">
+  <header class="bg-green-700 text-white shadow-md relative">
     <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
       <div>
         <h1 class="text-2xl font-extrabold">Siyakhathala</h1>
-        <p class="text-sm italic text-yellow-300">We Care</p>
+        <p class="text-xs italic text-gray-200 -mt-1">We Care</p>
       </div>
       <nav>
         <ul class="flex space-x-6">
-          <li><a href="#" class="hover:text-yellow-400">Home</a></li>
-          <li><a href="#how-it-works" class="hover:text-yellow-400">How it Works</a></li>
-          <li><a href="#features" class="hover:text-yellow-400">Features</a></li>
-          <li><a href="#report" class="hover:text-yellow-400">Report Issue</a></li>
+          <li><a href="#" class="hover:underline">Home</a></li>
+          <li><a href="#how-it-works" class="hover:underline">How it Works</a></li>
+          <li><a href="#features" class="hover:underline">Features</a></li>
+          <li><a href="#report" class="hover:underline">Report Issue</a></li>
         </ul>
       </nav>
+    </div>
+    <!-- Accent Bar -->
+    <div class="flex h-1">
+      <div class="flex-1 bg-black"></div>
+      <div class="flex-1 bg-yellow-500"></div>
+      <div class="flex-1 bg-red-600"></div>
+      <div class="flex-1 bg-blue-600"></div>
     </div>
   </header>
 
   <!-- Hero Section -->
   <section class="bg-white py-20">
     <div class="max-w-6xl mx-auto text-center px-6">
-      <h2 class="text-4xl font-extrabold text-gray-800 mb-4">
-        Siyakhathala – <span class="text-green-700">We Care</span>
-      </h2>
+      <h2 class="text-4xl font-extrabold text-gray-800 mb-2">Siyakhathala</h2>
+      <p class="text-sm italic text-gray-500 mb-6">We Care</p>
       <p class="text-lg text-gray-600 mb-8">
         Help us build safer and better communities across South Africa.  
         Report potholes, broken streetlights, water leaks, and more – quickly and easily.
       </p>
-      <a href="#report" class="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg shadow-lg transition">
+      <a href="#report" class="bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition">
         Report an Issue
       </a>
     </div>
@@ -44,20 +55,20 @@
   <!-- How it Works -->
   <section id="how-it-works" class="py-16 bg-gray-100">
     <div class="max-w-6xl mx-auto px-6">
-      <h3 class="text-2xl font-bold text-center mb-10 text-green-700">How it Works</h3>
+      <h3 class="text-2xl font-bold text-center mb-10">How it Works</h3>
       <div class="grid md:grid-cols-3 gap-8 text-center">
-        <div class="p-6 bg-white rounded-xl shadow border-t-4 border-green-700">
+        <div class="p-6 bg-white rounded-xl shadow border-t-4 border-yellow-500">
           <span class="text-green-700 text-4xl">📍</span>
           <h4 class="mt-4 font-semibold text-lg">1. Pin the Location</h4>
           <p class="text-gray-600">Select the exact location of the issue on the map.</p>
         </div>
-        <div class="p-6 bg-white rounded-xl shadow border-t-4 border-blue-600">
-          <span class="text-blue-600 text-4xl">📷</span>
+        <div class="p-6 bg-white rounded-xl shadow border-t-4 border-red-600">
+          <span class="text-green-700 text-4xl">📷</span>
           <h4 class="mt-4 font-semibold text-lg">2. Upload Photos</h4>
           <p class="text-gray-600">Take a picture of the problem for faster response.</p>
         </div>
-        <div class="p-6 bg-white rounded-xl shadow border-t-4 border-red-600">
-          <span class="text-red-600 text-4xl">✅</span>
+        <div class="p-6 bg-white rounded-xl shadow border-t-4 border-blue-600">
+          <span class="text-green-700 text-4xl">✅</span>
           <h4 class="mt-4 font-semibold text-lg">3. Submit Report</h4>
           <p class="text-gray-600">Send your report directly to the right department.</p>
         </div>
@@ -68,72 +79,105 @@
   <!-- Features -->
   <section id="features" class="py-20 bg-white">
     <div class="max-w-6xl mx-auto px-6 text-center">
-      <h3 class="text-3xl font-bold mb-12 text-green-700">Why Choose Siyakhathala?</h3>
+      <h3 class="text-3xl font-bold mb-12">Why Choose Siyakhathala?</h3>
       <div class="grid md:grid-cols-3 gap-8">
-        
-        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-green-700">
+        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-yellow-500">
           <span class="text-green-700 text-4xl">🤖</span>
           <h4 class="mt-4 font-semibold text-lg">AI Categorization</h4>
           <p class="text-gray-600">Upload a photo and our AI auto-detects whether it’s a pothole, broken light, or dumping site.</p>
         </div>
-        
-        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-blue-600">
-          <span class="text-blue-600 text-4xl">🗺️</span>
+        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-red-600">
+          <span class="text-green-700 text-4xl">🗺️</span>
           <h4 class="mt-4 font-semibold text-lg">Live Issue Map</h4>
           <p class="text-gray-600">Pin the exact location and track issues across your community in real-time.</p>
         </div>
-        
-        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-yellow-400">
-          <span class="text-yellow-500 text-4xl">⚖️</span>
+        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-blue-600">
+          <span class="text-green-700 text-4xl">⚖️</span>
           <h4 class="mt-4 font-semibold text-lg">Severity Scale</h4>
           <p class="text-gray-600">Our AI ranks issues from minor to critical, helping municipalities prioritize faster.</p>
         </div>
-        
-        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-red-600">
-          <span class="text-red-600 text-4xl">⏳</span>
+        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-black">
+          <span class="text-green-700 text-4xl">⏳</span>
           <h4 class="mt-4 font-semibold text-lg">Response Timer</h4>
           <p class="text-gray-600">Track how long it’s been since the issue was reported. Hold government accountable.</p>
         </div>
-        
-        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-black">
-          <span class="text-black text-4xl">📊</span>
+        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-yellow-500">
+          <span class="text-green-700 text-4xl">📊</span>
           <h4 class="mt-4 font-semibold text-lg">Smart City Dashboard</h4>
           <p class="text-gray-600">Municipalities get a live dashboard to resolve and prioritize issues efficiently.</p>
         </div>
-
-        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-green-700">
+        <div class="p-6 bg-gray-50 rounded-xl shadow border-l-4 border-red-600">
           <span class="text-green-700 text-4xl">🌍</span>
           <h4 class="mt-4 font-semibold text-lg">Scalable Impact</h4>
           <p class="text-gray-600">Built for South Africa, designed to scale across Africa’s growing smart cities.</p>
         </div>
-
       </div>
     </div>
   </section>
 
-  <!-- Call to Action -->
-  <section id="report" class="py-20 bg-green-700 text-white text-center border-t-4 border-yellow-400">
-    <h3 class="text-3xl font-bold mb-6">Together, We Care</h3>
-    <p class="mb-8 text-lg">Your reports help us fix problems and improve lives in your community.</p>
-    <a href="/report" class="bg-yellow-400 text-black font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-yellow-500 transition">
-      Start Reporting
-    </a>
+  <!-- Report Section with Map -->
+  <section id="report" class="py-20 bg-green-700 text-white text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h3 class="text-3xl font-bold mb-2">Siyakhathala</h3>
+      <p class="text-xs italic text-gray-200 mb-6">We Care</p>
+      <p class="mb-8 text-lg">Pin the location of the issue and help us respond faster.</p>
+
+      <!-- Map -->
+      <div id="map"></div>
+      <p id="locationOutput" class="mt-4 text-yellow-300 font-semibold"></p>
+
+      <!-- Report button -->
+      <a href="#" class="mt-6 inline-block bg-white text-green-800 font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-100 transition">
+        Submit Report
+      </a>
+    </div>
   </section>
 
   <!-- Footer -->
-  <footer class="bg-gray-900 text-gray-400 py-8 border-t-4 border-green-700">
+  <footer class="bg-gray-900 text-gray-400 py-8">
     <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
       <div>
         <h4 class="text-white font-bold">Siyakhathala</h4>
-        <p class="text-sm italic text-yellow-300">We Care</p>
+        <p class="text-xs italic text-gray-400 -mt-1">We Care</p>
       </div>
       <ul class="flex space-x-6 mt-4 md:mt-0">
-        <li><a href="#" class="hover:text-yellow-400">Privacy Policy</a></li>
-        <li><a href="#" class="hover:text-yellow-400">Terms</a></li>
-        <li><a href="#" class="hover:text-yellow-400">Contact</a></li>
+        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+        <li><a href="#" class="hover:text-white">Terms</a></li>
       </ul>
+    </div>
+    <!-- Accent bar -->
+    <div class="flex h-1 mt-4">
+      <div class="flex-1 bg-black"></div>
+      <div class="flex-1 bg-yellow-500"></div>
+      <div class="flex-1 bg-red-600"></div>
+      <div class="flex-1 bg-blue-600"></div>
     </div>
   </footer>
 
+  <!-- Leaflet Map Script -->
+  <script>
+    // Initialize map centered on South Africa
+    var map = L.map('map').setView([-30.5595, 22.9375], 6);
+
+    // Load OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marker;
+
+    // Handle map click
+    map.on('click', function(e) {
+      if (marker) {
+        marker.setLatLng(e.latlng); // move existing marker
+      } else {
+        marker = L.marker(e.latlng).addTo(map); // add new marker
+      }
+
+      // Show coordinates
+      document.getElementById("locationOutput").innerText =
+        "Pinned Location: " + e.latlng.lat.toFixed(5) + ", " + e.latlng.lng.toFixed(5);
+    });
+  </script>
 </body>
 </html>
