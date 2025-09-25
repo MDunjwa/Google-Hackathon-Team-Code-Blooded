@@ -53,9 +53,13 @@
 
   <!-- Latest Issue Modal -->
   <div id="latestModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
-    <div class="bg-white p-6 rounded-xl shadow-2xl max-w-xl w-full relative border-l-8 border-green-700">
-      <button id="closeModal" class="absolute top-3 right-3 text-red-500 font-bold text-xl hover:text-red-700">✖</button>
-      <div id="dashboardContent" class="space-y-4 text-center text-gray-700">
+    <div class="bg-white rounded-xl shadow-2xl max-w-xl w-full relative overflow-hidden">
+      <!-- Accent bar -->
+      <div id="modalAccent" class="h-2 w-full bg-gray-400"></div>
+
+      <button id="closeModal" class="absolute top-3 right-3 text-red-500 font-bold text-xl hover:text-red-700 transition">✖</button>
+
+      <div id="dashboardContent" class="p-6 text-center space-y-4 text-gray-700">
         Loading latest issue...
       </div>
     </div>
@@ -149,6 +153,18 @@
     const modal = document.getElementById('latestModal');
     const closeModal = document.getElementById('closeModal');
     const dashboard = document.getElementById('dashboardContent');
+    const modalAccent = document.getElementById('modalAccent');
+
+    function categoryColor(category) {
+      switch(category?.toLowerCase()) {
+        case "pothole": return "bg-yellow-500";
+        case "streetlight": return "bg-red-600";
+        case "water": return "bg-blue-600";
+        case "garbage": return "bg-green-700";
+        case "traffic": return "bg-purple-600";
+        default: return "bg-gray-400";
+      }
+    }
 
     showBtn.addEventListener('click', () => {
       modal.classList.remove('hidden');
@@ -156,6 +172,7 @@
       const issueDataJSON = localStorage.getItem('issueData');
       if (!issueDataJSON) {
         dashboard.innerHTML = "<p class='text-red-500 text-center'>No issue data found. Please submit an issue first.</p>";
+        modalAccent.className = "h-2 w-full bg-gray-400";
         return;
       }
 
@@ -164,17 +181,18 @@
       const photoURL = issueData.photoDataUrl || "";
       const submittedDate = issueData.submittedAt ? new Date(issueData.submittedAt) : new Date();
       const diffDays = Math.floor((new Date() - submittedDate)/(1000*60*60*24));
-      const firstName = issueData.name ? issueData.name.split(' ')[0] : "Anonymous";
-      const address = issueData.address || "Address not specified";
+
+      modalAccent.className = "h-2 w-full " + categoryColor(issueData.category);
 
       dashboard.innerHTML = `
-        ${photoURL ? `<img src="${photoURL}" alt="Issue Photo" class="mx-auto mb-4 rounded-lg shadow-md max-h-64 border-2 border-green-700" />` : ""}
-        <h3 class="text-2xl font-bold text-green-700">${issueData.category || "Untitled Issue"}</h3>
+        ${photoURL ? `<img src="${photoURL}" alt="Issue Photo" class="mx-auto mb-4 rounded-lg shadow-md max-h-80 border-2 border-gray-300" />` : ""}
+        <h3 class="text-2xl font-bold text-green-700">
+          ${issueData.category ? issueData.category.charAt(0).toUpperCase() + issueData.category.slice(1) : "Untitled Issue"}
+        </h3>
+
         <p class="text-gray-700">${issueData.description || "No description provided."}</p>
-        <p class="text-gray-600"><span class="font-semibold">Address:</span> ${address}</p>
-        <p class="text-gray-600"><span class="font-semibold">Coordinates:</span> ${coords}</p>
-        <p class="text-gray-600"><span class="font-semibold">Reported by:</span> ${firstName}</p>
-        <p class="text-gray-600"><span class="font-semibold">Days since reported:</span> ${diffDays}</p>
+        <p class="text-gray-600 mt-2"><span class="font-semibold">Coordinates:</span> ${coords}</p>
+        <p class="text-gray-600 mt-2"><span class="font-semibold">Days since reported:</span> ${diffDays}</p>
       `;
     });
 
